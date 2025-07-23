@@ -235,6 +235,77 @@ class LinkedList:
         
         self.size += other.size
                 
+# 双向链表的实现
+class DoublyListNode:
+    """双向链表节点"""
+    def __init__(self, val=0, prev=None, next=None):
+        self.val = val
+        self.prev = prev
+        self.next = next
+
+class DoublyLinkList:
+    """
+    双向链表实现
+    相比单链表,可以O(1)时间删除给定节点
+    """        
+    def __init__(self):
+        # 使用哨兵节点简化边界处理
+        self.head = DoublyListNode # 头哨兵
+        self.tail = DoublyListNode # 尾哨兵
+        self.head.next = self.tail
+        self.tail.prev = self.head
+        self.size = 0    
+     
+    def add_frist(self, val):
+        """在头部添加节点"""
+        self._add_between(val, self.head, self.head.next)
+    
+    def add_last(self, val):
+        """在尾部添加节点"""
+        self._add_between(val, self.tail.prev, self.tail)
+    
+    def _add_between(self, val, pred, succ):
+        """在pred和succ之间插入新节点"""
+        new_node = DoublyListNode(val, pred, succ)
+        pred.next = new_node
+        succ.prev = new_node
+        self.size += 1
+        return new_node    
+    
+    def remove_node(self, node):
+        """
+        删除给定节点
+        时间复杂度O(1)
+        """     
+        if node == self.head or node == self.tail:
+            raise ValueError("Can not remove sentinel nodes")
         
+        pred = node.prev
+        succ = node.next
+        pred.next = succ
+        succ.prev = pred
+        self.size -= 1
+        return node.val
+    
+    def remove_first(self):
+        """删除第一个节点"""
+        if self.size == 0:
+            raise IndexError("Remove from empty list")
         
-             
+        return self.remove_node(self.head.next)
+    
+    def remove_last(self):
+        """删除最后一个节点"""
+        if self.size == 0:
+            raise IndexError("Remove from emoty list")
+        
+        return self.remove_node(self.tail.prev)
+    
+    def __str__(self):
+        """字符串表示"""
+        values = []
+        current = self.head.next
+        while current != self.tail:
+            values.append(str(current.val))
+            current = current.next
+        return '<->'.join(values)
