@@ -180,3 +180,162 @@ class ArrayQueue:
         self.rear = self.size
         
 # 单调栈与单调队列
+class MonotonicStack:
+    """
+    单调栈：栈内元素保持单调递增或递减
+    常用于解决"下一个更大/更小元素"类问题
+    """
+    
+    @staticmethod
+    def next_greater_element(nums):
+        """
+        找到每个元素的下一个更大元素
+        时间复杂度：O(n)
+        空间复杂度：O(n)
+        
+        示例：nums = [2,1,2,4,3] -> [4,2,4,-1,-1]
+        """
+        n = len(nums)
+        result = [-1] * n # 初始化为-1, 表示没有更大的元素
+        stack = [] # 存储索引
+        
+        for i in range(n):
+            # 当前元素比栈顶元素大时，栈顶元素的下一个更大元素就是当前元素
+            while stack and nums[stack[-1]] < nums[i]:
+                idx = stack.pop()
+                result[idx] = nums[i]
+            
+            stack.append(i)
+        
+        return result
+    
+    @staticmethod
+    def daily_temperatures(temperatures):
+        """
+        每日温度问题:找到每天需要待几天才能遇到更高温度
+        时间复杂度：O(n)
+        空间复杂度：O(n)
+                
+        示例：T = [73,74,75,71,69,72,76,73] -> [1,1,4,2,1,1,0,0]
+        """
+        n = len(temperatures)
+        result = [0] * n
+        stack = [] # 存储索引
+        
+        for i in range(n):
+            while stack and temperatures[stack[-1]] < temperatures[i]:
+                idx = stack.pop()
+                result[idx] = i -idx # 计算天数差
+            
+            stack.append(i)
+            
+        return result 
+     
+    @staticmethod
+    def largest_rectangle_area(heights):
+        """
+        柱状图中最大的矩形面积
+        时间复杂度：O(n)
+        空间复杂度：O(n)
+        
+        示例：heights = [2,1,5,6,2,3] -> 10
+        """
+        stack = []
+        max_area = 0
+        
+        for i, h in enumerate(heights):
+            # 当前高度小于栈顶高度时，计算以栈顶为高度的矩形面积
+            while stack and heights[stack[-1]] > h:
+                height_idx = stack.pop()
+                height = heights[height_idx]
+                
+                # 计算宽度
+                if stack:
+                    width = i - stack[-1] - 1 # (i - 1) - (stack[-1] + 1) + 1
+                else:
+                    width = i
+                
+                max_area = max(max_area, height * width)
+            
+            stack.append(i)
+        
+        # 处理剩余元素
+        while stack:
+            height_idx = stack.pop()
+            height = heights[height_idx]
+            
+            if stack:
+                width = len(heights) - stack[-1] - 1
+            else:
+                width = len(heights)
+            
+            max_area = max(max_area, height * width)
+        
+        return max_area
+
+class MonotonicQueue:
+    """
+    单调队列：队列内元素保持单调性
+    常用于滑动窗口最大/最小值问题
+    """
+    
+    @staticmethod
+    def sliding_window_maximum(nums, k):
+        """
+        滑动窗口最大值
+        时间复杂度：O(n)
+        空间复杂度：O(k)
+        
+        示例：nums = [1,3,-1,-3,5,3,6,7], k = 3
+        返回：[3,3,5,5,6,7]
+        """
+        from collections import deque
+        
+        dq = deque()  # 存储索引，保持单调递减
+        result = []
+        
+        for i in range(len(nums)):
+            # 移除超出窗口的元素
+            while dq and dq[0] <= i - k:
+                dq.popleft()
+            
+            # 维护单调递减队列
+            while dq and nums[dq[-1]] < nums[i]:
+                dq.pop()
+            
+            dq.append(i)
+            
+            # 窗口形成后，记录最大值
+            if i >= k - 1:
+                result.append(nums[dq[0]])
+        
+        return result
+    
+    @staticmethod
+    def sliding_window_minimum(nums, k):
+        """
+        滑动窗口最小值
+        时间复杂度：O(n)
+        空间复杂度：O(k)
+        """
+        from collections import deque
+        
+        dq = deque()  # 存储索引，保持单调递增
+        result = []
+        
+        for i in range(len(nums)):
+            # 移除超出窗口的元素
+            while dq and dq[0] <= i - k:
+                dq.popleft()
+            
+            # 维护单调递增队列
+            while dq and nums[dq[-1]] > nums[i]:
+                dq.pop()
+            
+            dq.append(i)
+            
+            # 窗口形成后，记录最小值
+            if i >= k - 1:
+                result.append(nums[dq[0]])
+        
+        return result
